@@ -24,6 +24,10 @@ exports.getScenarios = function(client, fn) {
   return client.find().toArray().then(fn);
 };
 
+exports.getCauses = function(client, fn) {
+  return client.find().toArray().then(fn);
+};
+
 // FOR REFERENCE ONLY
 
 exports.getRoomInfo = function(req, res, client, fn) { 

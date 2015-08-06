@@ -9,6 +9,7 @@ function Routes (app, ee) {
   var config = app.get('config');
   var client = app.get('mongoClient');
   var scenariosDB = client.collection('scenarios');
+  var causesDB = client.collection('causes');
   var votesDB = client.collection('votes');
 
   app.use(function (req, res, next) {
@@ -30,7 +31,9 @@ function Routes (app, ee) {
     });
   });
 
-  app.post('/create', function(req, res) {
-    utils.createScenario(req, res, scenariosDB, ee);
+  app.get('/causes', function(req, res) {
+    utils.getCauses(causesDB, function(causes) {
+      res.json(causes);
+    });
   });
 }
