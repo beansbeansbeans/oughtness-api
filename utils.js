@@ -9,19 +9,18 @@ exports.createScenario = function(req, res, client) {
 
 exports.createVote = function(req, res, client, cb) {
   return client.insert({
-    value: req.body.data,
-    scenario_id: req.body.scenario_id
+    dimension: req.body.dimension,
+    causes: [
+      {
+        cause: req.body.causes[0].id,
+        won: req.body.causes[0].won
+      },
+      {
+        cause: req.body.causes[1].id,
+        won: req.body.causes[1].won
+      }
+    ]
   }).then(cb);
-};
-
-exports.validateScenarioExists = function(req, res, client, cb) {
-  return client.findOne({
-    _id: ObjectId(req.body.scenario_id)
-  }).then(cb);
-};
-
-exports.getScenarios = function(client, fn) {
-  return client.find().toArray().then(fn);
 };
 
 exports.getCauses = function(client, fn) {

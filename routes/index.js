@@ -21,11 +21,9 @@ function Routes (app, ee) {
   });
 
   app.post('/vote', function(req, res) {
-    utils.validateScenarioExists(req, res, scenariosDB, function(record) {
+    utils.createVote(req, res, votesDB, function(record) {
       if(record) {
-        utils.createVote(req, res, votesDB, function() {
-          res.sendStatus(200);
-        });
+        res.sendStatus(200);
       } else {
         res.sendStatus(500);
       }
