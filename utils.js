@@ -1,4 +1,5 @@
 var ObjectId = require('mongojs').ObjectId;
+var _ = require('underscore');
 
 exports.createVote = function(req, res, client, cb) {
   var cause0id = req.body.causes[0].id;
@@ -53,13 +54,36 @@ exports.getVectors = function(votes, dimensions, causes, fn) {
     return causes.find().toArray();
   }).then(function(records) {
     return result.forEach(function(dimension, i) {
+      var votesForDimension = voteRecords.filter(function(d) {
+        return d.dimension == dimensionRecords[i]._id;
+      });
+
       records.forEach(function(cause) {
         result[i].causes[cause._id] = {};
-
         records.forEach(function(nestedCause) {
           if(nestedCause._id !== cause._id) {
-            // here we look it up within votes
-            result[i].causes[cause._id][nestedCause._id] = 0;
+            result[i].causes[cause._id][nestedCause._id] = null;
+          }
+        });
+      });
+
+      records.forEach(function(cause) {        
+        records.forEach(function(nestedCause) {
+          if(!_.isNull(result[i].causes[cause._id][nestedCause._id])) { return; }
+
+          var matchingVote = _.find(votesForDimension, function(vote) {
+            return typeof vote.causes[cause._id] !== 'undefined' && typeof vote.causes[nestedCause._id] !== 'undefined';
+          });
+
+          result[i].causes[cause._id][nestedCause._id] = 0;
+          result[i].causes[nestedCause._id][cause._id] = 0;
+
+          if(matchingVote) {
+            sum = matchingVote.causes[cause._id] + matchingVote.causes[nestedCause._id];
+            if(sum !== 0) {
+              result[i].causes[cause._id][nestedCause._id] = matchingVote.causes[cause._id] / sum;
+              result[i].causes[nestedCause._id][cause._id] = matchingVote.causes[nestedCause._id] / sum;
+            }
           }
         });
       });
