@@ -63,6 +63,8 @@ exports.getVectors = function(votes, dimensions, causes, fn) {
         records.forEach(function(nestedCause) {
           if(nestedCause._id !== cause._id) {
             result[i].causes[cause._id][nestedCause._id] = null;
+          } else {
+            result[i].causes[cause._id][nestedCause._id] = 1;
           }
         });
       });
