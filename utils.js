@@ -34,10 +34,15 @@ exports.createVote = function(req, res, client, cb) {
 };
 
 exports.getVectors = function(votes, dimensions, causes, fn) {
-  var result = [], dimensionObjects = [];
+  var result = [], dimensionRecords = [], voteRecords;
 
-  dimensions.find().toArray().then(function(records) {
-    dimensionObjects = records;
+  votes.find().toArray().then(function(records) {
+    voteRecords = records;
+    return;
+  }).then(function() {
+    return dimensions.find().toArray();
+  }).then(function(records) {
+    dimensionRecords = records;
     return records.forEach(function(dimension) {
       result.push({
         dimension: dimension._id,
@@ -50,6 +55,13 @@ exports.getVectors = function(votes, dimensions, causes, fn) {
     return result.forEach(function(dimension, i) {
       records.forEach(function(cause) {
         result[i].causes[cause._id] = {};
+
+        records.forEach(function(nestedCause) {
+          if(nestedCause._id !== cause._id) {
+            // here we look it up within votes
+            result[i].causes[cause._id][nestedCause._id] = 0;
+          }
+        });
       });
     });
   }).then(function() {
