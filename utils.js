@@ -1,5 +1,11 @@
+var Jmat = require('./jmat');
 var ObjectId = require('mongojs').ObjectId;
 var _ = require('underscore');
+
+// console.log(Jmat);
+console.log(Jmat.eig(Jmat.Matrix([[1, 0.25, 4], [4, 1, 9], [0.25, 0.11, 1]])).v.e);
+// 0.217, 0.717, 0.066
+// 3.31, 10.94, 1
 
 exports.createVote = function(req, res, client, cb) {
   var cause0id = req.body.causes[0].id;
