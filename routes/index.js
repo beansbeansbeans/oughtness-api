@@ -21,13 +21,8 @@ function Routes (app, ee) {
   });
 
   app.post('/vote', function(req, res) {
-    utils.createVote(req, res, votesDB, function(record) {
-      if(record) {
-        res.sendStatus(200);
-      } else {
-        res.sendStatus(500);
-      }
-    });
+    utils.createVote(req, res, votesDB);
+    res.sendStatus(200);
   });
 
   app.get('/causes', function(req, res) {
