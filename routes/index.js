@@ -25,6 +25,12 @@ function Routes (app, ee) {
     res.sendStatus(200);
   });
 
+  app.get('/vectors', function(req, res) {
+    utils.getVectors(votesDB, dimensionsDB, causesDB, function(vectors) {
+      res.json(vectors);
+    });
+  });
+
   app.get('/causes', function(req, res) {
     utils.getCauses(causesDB, function(causes) {
       res.json(causes);

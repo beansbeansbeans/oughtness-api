@@ -33,6 +33,30 @@ exports.createVote = function(req, res, client, cb) {
   });
 };
 
+exports.getVectors = function(votes, dimensions, causes, fn) {
+  var result = [], dimensionObjects = [];
+
+  dimensions.find().toArray().then(function(records) {
+    dimensionObjects = records;
+    return records.forEach(function(dimension) {
+      result.push({
+        dimension: dimension._id,
+        causes: {}
+      });
+    });
+  }).then(function() {
+    return causes.find().toArray();
+  }).then(function(records) {
+    return result.forEach(function(dimension, i) {
+      records.forEach(function(cause) {
+        result[i].causes[cause._id] = {};
+      });
+    });
+  }).then(function() {
+    fn(result);
+  });
+};
+
 exports.getCauses = function(client, fn) {
   return client.find().toArray().then(fn);
 };
