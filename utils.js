@@ -122,10 +122,10 @@ exports.getVectors = function(votes, dimensions, causes, fn) {
         });
       });
 
-      var eigenVectors = Jmat.eig(Jmat.Matrix(result[i].causes)).v.e;
-      eigenVectors.forEach(function(_, columnIndex) {
-        result[i].results.push(eigenVectors[columnIndex][0].re);
-      });
+      // var eigenVectors = Jmat.eig(Jmat.Matrix(result[i].causes)).v.e;
+      // eigenVectors.forEach(function(_, columnIndex) {
+      //   result[i].results.push(eigenVectors[columnIndex][0].re);
+      // });
     });
   }).then(function() {
     fn(result);
