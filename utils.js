@@ -2,10 +2,8 @@ var Jmat = require('./jmat');
 var ObjectId = require('mongojs').ObjectId;
 var _ = require('underscore');
 
-// console.log(Jmat);
-console.log(Jmat.eig(Jmat.Matrix([[1, 0.25, 4], [4, 1, 9], [0.25, 0.11, 1]])).v.e);
-// 0.217, 0.717, 0.066
-// 3.31, 10.94, 1
+// CORRECT RESULT: https://en.wikipedia.org/wiki/Analytic_hierarchy_process_%E2%80%93_leader_example (by experience)
+// console.log(Jmat.eig(Jmat.Matrix([[1, 0.25, 4], [4, 1, 9], [0.25, 0.11, 1]])).v.e);
 
 exports.createVote = function(req, res, client, cb) {
   var cause0id = req.body.causes[0].id;
@@ -41,7 +39,9 @@ exports.createVote = function(req, res, client, cb) {
 };
 
 exports.getVectors = function(votes, dimensions, causes, fn) {
-  var result = [], dimensionRecords = [], voteRecords;
+  var result = [], 
+    dimensionRecords = [], 
+    voteRecords;
 
   votes.find().toArray().then(function(records) {
     voteRecords = records;
@@ -53,7 +53,8 @@ exports.getVectors = function(votes, dimensions, causes, fn) {
     return records.forEach(function(dimension) {
       result.push({
         dimension: dimension._id,
-        causes: {}
+        causes: [],
+        results: []
       });
     });
   }).then(function() {
@@ -64,36 +65,36 @@ exports.getVectors = function(votes, dimensions, causes, fn) {
         return d.dimension == dimensionRecords[i]._id;
       });
 
-      records.forEach(function(cause) {
-        result[i].causes[cause._id] = {};
-        records.forEach(function(nestedCause) {
-          if(nestedCause._id !== cause._id) {
-            result[i].causes[cause._id][nestedCause._id] = null;
-          } else {
-            result[i].causes[cause._id][nestedCause._id] = 1;
-          }
-        });
+      records.forEach(function(_, causeIndex) {
+        var row = new Array(records.length);
+        row[causeIndex] = 1;
+        result[i].causes.push(row);
       });
 
-      records.forEach(function(cause) {        
-        records.forEach(function(nestedCause) {
-          if(!_.isNull(result[i].causes[cause._id][nestedCause._id])) { return; }
+      records.forEach(function(cause, causeIndex) {
+        records.forEach(function(nestedCause, nestedCauseIndex) {
+          if(typeof result[i].causes[causeIndex][nestedCauseIndex] !== 'undefined') { return; }
 
           var matchingVote = _.find(votesForDimension, function(vote) {
             return typeof vote.causes[cause._id] !== 'undefined' && typeof vote.causes[nestedCause._id] !== 'undefined';
           });
 
-          result[i].causes[cause._id][nestedCause._id] = 0;
-          result[i].causes[nestedCause._id][cause._id] = 0;
+          result[i].causes[causeIndex][nestedCauseIndex] = 0;
+          result[i].causes[nestedCauseIndex][causeIndex] = 0;
 
           if(matchingVote) {
             sum = matchingVote.causes[cause._id] + matchingVote.causes[nestedCause._id];
             if(sum !== 0) {
-              result[i].causes[cause._id][nestedCause._id] = matchingVote.causes[cause._id] / sum;
-              result[i].causes[nestedCause._id][cause._id] = matchingVote.causes[nestedCause._id] / sum;
+              result[i].causes[causeIndex][nestedCause] = matchingVote.causes[cause._id] / sum;
+              result[i].causes[nestedCauseIndex][causeIndex] = matchingVote.causes[nestedCause._id] / sum;
             }
           }
         });
+      });
+
+      var eigenVectors = Jmat.eig(Jmat.Matrix(result[i].causes)).v.e;
+      eigenVectors.forEach(function(_, columnIndex) {
+        result[i].results.push(eigenVectors[columnIndex][0].re);
       });
     });
   }).then(function() {
