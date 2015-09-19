@@ -128,7 +128,10 @@ exports.getVectors = function(votes, dimensions, causes, fn) {
       // });
     });
   }).then(function() {
-    fn(result);
+    fn({
+      result: result,
+      votes: voteRecords
+    });
   });
 };
 
