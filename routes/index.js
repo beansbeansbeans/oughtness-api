@@ -2,6 +2,7 @@ var express = require('express');
 var path = require('path');
 var utils = require('../utils');
 var cookie = require('cookie');
+var moment = require('moment');
 
 module.exports = Routes;
 
@@ -16,8 +17,9 @@ function Routes (app, ee) {
   app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
+    res.header("Access-Control-Allow-Headers", "Origin", "X-Requested-With, Content-Type", "Accept");
     next();
+    console.log("hi", moment(Date.now(), 'x').format('MM-DD-YYYY h:m a'));
   });
 
   app.post('/vote', function(req, res) {
