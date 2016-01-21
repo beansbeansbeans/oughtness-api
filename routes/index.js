@@ -18,6 +18,7 @@ function Routes (app, ee) {
     console.log("hi", moment(Date.now(), 'x').format('MM-DD-YYYY h:m a'));
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin", "X-Requested-With, Content-Type", "Accept");
+    res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
     next();
   });
 
